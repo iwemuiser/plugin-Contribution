@@ -535,3 +535,18 @@ msgstr ""
 #, php-format
 msgid "Your %s profile"
 msgstr ""
+
+msgid "You must"
+msgstr ""
+
+msgid "create an account
+msgstr ""
+
+msgid "or"
+msgstr ""
+
+msgid "log in"
+msgstr ""
+
+msgid "before contributing. You can still leave your identity to site visitors anonymous."
+msgstr ""

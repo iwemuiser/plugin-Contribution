@@ -39,7 +39,7 @@ enableContributionAjaxForm(<?php echo js_escape(url($contributionPath.'/type-for
         <?php $session = new Zend_Session_Namespace;
               $session->redirect = absolute_url();
         ?>
-        <p>You must <a href='<?php echo url('guest-user/user/register'); ?>'>create an account</a> or <a href='<?php echo url('guest-user/user/login'); ?>'>log in</a> before contributing. You can still leave your identity to site visitors anonymous.</p>        
+        <p><?php echo _("You must"); ?> <a href='<?php echo url('guest-user/user/register'); ?>'> <?php echo _("create an account") ?> </a> <?php echo __("or") ?> <a href='<?php echo url('guest-user/user/login'); ?>'> <?php echo __("log in")?> </a> <?php echo __("before contributing. You can still leave your identity to site visitors anonymous."); ?></p>
     <?php else: ?>
         <form method="post" action="" enctype="multipart/form-data">
             <fieldset id="contribution-item-metadata">
