@@ -59,31 +59,24 @@ class Contribution_ContributionController extends Omeka_Controller_AbstractActio
      */
     public function contributeAction()
     {
-        if ($this->_processForm($_POST)) {
-            $route = $this->getFrontController()->getRouter()->getCurrentRouteName();
-            $this->_helper->_redirector->gotoRoute(array('action' => 'thankyou'), $route);
-                        
-        } else {
-
-            $typeId = null;
-            if (isset($_POST['contribution_type']) && ($postedType = $_POST['contribution_type'])) {
-                $typeId = $postedType;
-            } else if ($defaultType = get_option('contribution_default_type')) {
-                $typeId = $defaultType;
-            }
-
-            if ($typeId) {
-                if(!get_option('contribution_simple') && $user = current_user()) {
-                    $this->_setupContributeSubmit($typeId);
-                    $this->view->typeForm = $this->view->render('contribution/type-form.php');
+        if(!empty($_POST)) {
+            if ($this->_processForm($_POST)) {
+                $route = $this->getFrontController()->getRouter()->getCurrentRouteName();
+                $this->_helper->_redirector->gotoRoute(array('action' => 'thankyou'), $route);
+            } else {
+                $typeId = null;
+                if (isset($_POST['contribution_type']) && ($postedType = $_POST['contribution_type'])) {
+                    $typeId = $postedType;
+                } else if ($defaultType = get_option('contribution_default_type')) {
+                    $typeId = $defaultType;
+                }
+                $this->_setupContributeSubmit($typeId);
+                
+                if(isset($this->_profile) && !$this->_profile->exists()) {
+                    $this->_helper->flashMessenger($this->_profile->getErrors(), 'error');
+                    return;
                 }
             }
-            
-            if(isset($this->_profile) && !$this->_profile->exists()) {
-                $this->_helper->flashMessenger($this->_profile->getErrors(), 'error');
-                return;
-            }
-
         }
     }
     
@@ -168,13 +161,22 @@ class Contribution_ContributionController extends Omeka_Controller_AbstractActio
             // if still not a user, need to create one based on the email address
             if(!$user) {
                 $user = $this->_createNewGuestUser($post);
-            }            
+                if($user->hasErrors()) {
+                    $errors = $user->getErrors()->get();
+                    //since we're creating the user behind the scenes, skip username and name errors
+                    unset($errors['name']);
+                    unset($errors['username']);
+                    foreach($errors as $error) {
+                        $this->_helper->flashMessenger($error, 'error');
+                    }
+                    return false;
+                }
+            }
             
             // The final form submit was not pressed.
             if (!isset($post['form-submit'])) {
                 return false;
             }
-            
             if (!$this->_validateContribution($post)) {
                 return false;
             }
@@ -187,7 +189,6 @@ class Contribution_ContributionController extends Omeka_Controller_AbstractActio
             	$this->_helper->flashMessenger(__('You must select a type for your contribution.'), 'error');
                 return false;
             }
-
             $itemMetadata = array('public'       => false,
                                   'featured'     => false,
                                   'item_type_id' => $itemTypeId);
@@ -215,7 +216,7 @@ class Contribution_ContributionController extends Omeka_Controller_AbstractActio
                 return false;
             } catch (Omeka_File_Ingest_InvalidException $e) {
                 // Copying this cruddy hack
-                if (strstr($e->getMessage(), "The file 'contributed_file' was not uploaded")) {
+                if (strstr($e->getMessage(), "'contributed_file'")) {
                    $this->_helper->flashMessenger("You must upload a file when making a {$contributionType->display_name} contribution.", 'error');
                 } else {
                     $this->_helper->flashMessenger($e->getMessage());
@@ -229,12 +230,10 @@ class Contribution_ContributionController extends Omeka_Controller_AbstractActio
             // Allow plugins to deal with the inputs they may have added to the form.
             fire_plugin_hook('contribution_save_form', array('contributionType'=>$contributionType,'item'=>$item, 'post'=>$post));
             $item->save();
-            
             //if not simple and the profile doesn't process, send back false for the error
             if( !$simple && !$this->_processUserProfile($post) ) {
                 return false;
             }
-            
             $this->_linkItemToContributedItem($item, $contributor, $post);
             $this->_sendEmailNotifications($user->email, $item);
             return true;
@@ -245,7 +244,7 @@ class Contribution_ContributionController extends Omeka_Controller_AbstractActio
     protected function _processUserProfile($post)
     {
         $profileTypeId = get_option('contribution_user_profile_type');
-        if($profileTypeId) {
+        if($profileTypeId && plugin_is_active('UserProfiles')) {
             $user = current_user();
             $profile = $this->_helper->db->getTable('UserProfilesProfile')->findByUserIdAndTypeId($user->id, $profileTypeId);
             if(!$profile) {
@@ -260,8 +259,8 @@ class Contribution_ContributionController extends Omeka_Controller_AbstractActio
             if(!$profile->save(false)) {
                 return false;
             }
-            return true;                
         }
+        return true;
     }
     
     /**
@@ -335,7 +334,7 @@ class Contribution_ContributionController extends Omeka_Controller_AbstractActio
      */
     protected function _validateContribution($post)
     {
-        if (!@$post['terms-agree']) {
+        if ($post['terms-agree'] == 0) {
             $this->_helper->flashMessenger(__('You must agree to the Terms and Conditions.'), 'error');
             return false;
         }
@@ -418,8 +417,11 @@ class Contribution_ContributionController extends Omeka_Controller_AbstractActio
         $user->name = $name;
         $user->username = $username;
         $user->role = 'guest';
-        $user->save();
+        try {
+            $user->save();
+        } catch(Exception $e) {
+            
+        }
         return $user;
     }
-    
 }
