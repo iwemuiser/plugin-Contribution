@@ -18,7 +18,8 @@ if ($type->isFileRequired()):
 
 <?php 
 foreach ($type->getTypeElements() as $contributionTypeElement) {
-    echo $this->elementForm($contributionTypeElement->Element, $item, array('contributionTypeElement'=>$contributionTypeElement));
+    $options = array('contributionTypeElement'=>$contributionTypeElement);
+    echo $this->elementForm($contributionTypeElement->Element, $item, $options);
 }
 ?>
 
