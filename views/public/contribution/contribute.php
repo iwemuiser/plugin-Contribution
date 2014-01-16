@@ -30,7 +30,7 @@ enableContributionAjaxForm(<?php echo js_escape(url($contributionPath.'/type-for
 // ]]>
 </script>
 
-<h1><?php echo $head['title']; ?></h1>
+<h1><?php echo __($head['title']); ?></h1>
 
 <div id="primary">
 <?php echo flash(); ?>
@@ -57,6 +57,9 @@ enableContributionAjaxForm(<?php echo js_escape(url($contributionPath.'/type-for
             
             <fieldset id="contribution-confirm-submit" <?php if (!isset($type)) { echo 'style="display: none;"'; }?>>
                 <div class="inputs">
+                    <?php echo $this->formCheckbox('contribution-public', "0", array('hidden' => true), array('0')); ?>
+                </div>
+                <div class="inputs">
                     <?php $anonymous = isset($_POST['contribution-anonymous']) ? $_POST['contribution-anonymous'] : 0; ?>
                     <?php echo $this->formCheckbox('contribution-anonymous', $anonymous, null, array(1, 0)); ?>
                     <?php echo $this->formLabel('contribution-anonymous', __("Contribute anonymously.")); ?>
@@ -65,6 +68,7 @@ enableContributionAjaxForm(<?php echo js_escape(url($contributionPath.'/type-for
                     <?php echo $this->formCheckbox('terms-agree', $agree, null, array('1', '0')); ?>
                     <?php echo $this->formLabel('terms-agree', __('I agree to the Terms and Conditions.')); ?>
                 </div>
+                
                 <?php echo $this->formSubmit('form-submit', __('Contribute'), array('class' => 'submitinput')); ?>
             </fieldset>
         </form>

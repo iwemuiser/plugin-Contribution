@@ -2,7 +2,7 @@
 <?php if (!$type): ?>
 <p>You must choose a contribution type to continue.</p>
 <?php else: ?>
-<h2>Contribute a <?php echo $type->display_name; ?></h2>
+<h2><?php echo __("Contribute") . ": " . $type->display_name; ?></h2>
 
 <?php 
 if ($type->isFileRequired()):

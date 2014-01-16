@@ -25,7 +25,7 @@ class Contribution_ContributionController extends Omeka_Controller_AbstractActio
     {
         $user = current_user();
         $contribItemTable = $this->_helper->db->getTable('ContributionContributedItem');
-                
+
         $contribItems = array();
         if(!empty($_POST)) {            
             foreach($_POST['contribution_public'] as $id=>$value) {
@@ -59,10 +59,15 @@ class Contribution_ContributionController extends Omeka_Controller_AbstractActio
      */
     public function contributeAction()
     {
+#	    $captchaObj = $this->_setupCaptcha();
+        
         if(!empty($_POST)) {
             if ($this->_processForm($_POST)) {
                 $route = $this->getFrontController()->getRouter()->getCurrentRouteName();
-                $this->_helper->_redirector->gotoRoute(array('action' => 'thankyou'), $route);
+#                if ($this->_validateFormSubmission($captchaObj)) { #recaptcha for anonymous contributions
+##                    $this->sendEmailNotification($_POST['email'], $_POST['name'], $_POST['message']);
+                    $this->_helper->_redirector->gotoRoute(array('action' => 'thankyou'), $route);
+#                }
             } else {
                 $typeId = null;
                 if (isset($_POST['contribution_type']) && ($postedType = $_POST['contribution_type'])) {
@@ -78,8 +83,31 @@ class Contribution_ContributionController extends Omeka_Controller_AbstractActio
                 }
             }
         }
+        #if the form is not sent
+#        if ($captchaObj) {
+#            $captcha = $captchaObj->render(new Zend_View);
+#        } else {
+#            $captcha = '';
+#        }
+#        $this->view->assign(compact('captcha'));
     }
     
+    protected function _setupCaptcha()
+    {
+        return Omeka_Captcha::getCaptcha();
+    }
+    
+    protected function _validateFormSubmission($captcha = null)
+    {
+        $valid = true;
+        // ZF ReCaptcha ignores the 1st arg.
+        if ($captcha and !$captcha->isValid('foo', $_POST)) {
+            $this->_helper->flashMessenger(__('Your CAPTCHA submission was invalid, please try again.'));
+            $valid = false;
+        }
+        return $valid;
+    }
+
     /**
      * Action for AJAX request from contribute form.
      */

@@ -164,7 +164,6 @@ class ContributionPlugin extends Omeka_Plugin_AbstractPlugin
             // Since this is an upgrade from an old version, we need to install
             // all our tables.
             $this->hookInstall();
-        
         }
         if (version_compare($oldVersion, '3.0', '<')) {
 
