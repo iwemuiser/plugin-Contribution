@@ -422,12 +422,12 @@ class ContributionPlugin extends Omeka_Plugin_AbstractPlugin
     {
         $elementTable = $this->_db->getTable('Element');
         
-        $storyType = new ContributionType;
+/*        $storyType = new ContributionType;
         $storyType->item_type_id = 1;
         $storyType->display_name = 'Story';
-        
         $storyType->file_permissions = 'Allowed';
         $storyType->save();
+
         $textElement = new ContributionTypeElement;
         $textElement->type_id = $storyType->id;
         $dcTitleElement = $elementTable->findByElementSetNameAndElementName('Dublin Core', 'Title');
@@ -436,6 +436,7 @@ class ContributionPlugin extends Omeka_Plugin_AbstractPlugin
         $textElement->order = 1;
         $textElement->long_text = false;
         $textElement->save();
+
         $textElement = new ContributionTypeElement;
         $textElement->type_id = $storyType->id;
         $itemTypeMetadataTextElement = $elementTable->findByElementSetNameAndElementName('Item Type Metadata', 'Text');
@@ -459,6 +460,7 @@ class ContributionPlugin extends Omeka_Plugin_AbstractPlugin
         $descriptionElement->order = 1;
         $descriptionElement->long_text = true;
         $descriptionElement->save();
+        */
     }
     
     public function hookBeforeSaveItem($args){
