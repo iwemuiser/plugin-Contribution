@@ -232,6 +232,7 @@ class Contribution_ContributionController extends Omeka_Controller_AbstractActio
             // even with the synchronous job dispatcher.
             if ($acl = get_acl()) {
                 $acl->allow(null, 'Items', 'showNotPublic');
+                $acl->allow(null, 'Collections', 'showNotPublic');
             }
             try {
                 //in case we're doing Simple, create and save the Item so the owner is set, then update with the data
@@ -240,7 +241,7 @@ class Contribution_ContributionController extends Omeka_Controller_AbstractActio
                 $item->save();
                 $item = update_item($item, $itemMetadata, array(), $fileMetadata);
             } catch(Omeka_Validator_Exception $e) {
-                $this->flashValidatonErrors($e);
+                $this->flashValidatonErrors("Validation error: " . $e);
                 return false;
             } catch (Omeka_File_Ingest_InvalidException $e) {
                 // Copying this cruddy hack
@@ -251,7 +252,7 @@ class Contribution_ContributionController extends Omeka_Controller_AbstractActio
                 }
                 return false;
             } catch (Exception $e) {
-                $this->_helper->flashMessenger($e->getMessage());
+                $this->_helper->flashMessenger("An exception occurred: " . $e->getMessage());
                 return false;
             }
             $this->_addElementTextsToItem($item, $post['Elements']);
