@@ -61,8 +61,8 @@ enableContributionAjaxForm(<?php echo js_escape(url($contributionPath.'/type-for
                 </div>
                 <div class="inputs">
                     <?php $anonymous = isset($_POST['contribution-anonymous']) ? $_POST['contribution-anonymous'] : 0; ?>
-                    <?php echo $this->formCheckbox('contribution-anonymous', $anonymous, null, array(1, 0)); ?>
-                    <?php echo $this->formLabel('contribution-anonymous', __("Contribute anonymously.")); ?>
+                    <?php echo $this->formCheckbox('contribution-anonymous', $anonymous, array('hidden' => true), array(1, 0)); ?>
+<!--                 <?php echo $this->formLabel('contribution-anonymous', __("Contribute anonymously.")); ?> -->
                     <p><label for="terms-agree"><?php echo __("In order to contribute, you must read and agree to the %s",  "<a href='" . contribution_contribute_url('terms') . "' target='_blank'>" . __('Terms and Conditions') . ".</a>"); ?></label></p>
                     <?php $agree = isset( $_POST['terms-agree']) ?  $_POST['terms-agree'] : 0 ?>
                     <?php echo $this->formCheckbox('terms-agree', $agree, null, array('1', '0')); ?>
